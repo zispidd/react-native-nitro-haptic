@@ -1,0 +1,17 @@
+{
+  "cxxNamespace": ["nitrohaptic"],
+  "ios": {
+    "iosModuleName": "NitroHaptic"
+  },
+  "android": {
+    "androidNamespace": ["nitrohaptic"],
+    "androidCxxLibName": "nitrohaptic"
+  },
+  "autolinking": {
+    "NitroHaptic": {
+      "swift": "NitroHaptic",
+      "kotlin": "NitroHaptic"
+    }
+  },
+  "ignorePaths": ["node_modules"]
+}
