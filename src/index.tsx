@@ -1,9 +1,9 @@
-import { NitroModules } from 'react-native-nitro-modules';
-import type { NitroHaptic } from './NitroHaptic.nitro';
+import { NitroModules } from 'react-native-nitro-modules'
+import type { Haptic, HapticPreset, HapticPattern } from './specs/NitroHaptic.nitro'
+export type { HapticPreset, HapticPattern } from './specs/NitroHaptic.nitro'
+export { RNHFPresetToNitro } from './presets'
 
-const NitroHapticHybridObject =
-  NitroModules.createHybridObject<NitroHaptic>('NitroHaptic');
+export const NitroHaptic = NitroModules.createHybridObject('Haptic') as Haptic
 
-export function multiply(a: number, b: number): number {
-  return NitroHapticHybridObject.multiply(a, b);
-}
+export const notify = (preset: HapticPreset) => NitroHaptic.notify(preset)
+export const play = (pattern: HapticPattern) => NitroHaptic.play(pattern)

@@ -1,6 +1,6 @@
 #include <jni.h>
-#include "nitrohapticOnLoad.hpp"
+#include "NitroHapticOnLoad.hpp"
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*) {
-  return margelo::nitro::nitrohaptic::initialize(vm);
+  return margelo::nitro::haptic::initialize(vm);
 }
