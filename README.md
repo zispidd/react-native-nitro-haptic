@@ -12,17 +12,9 @@ Install the library and Nitro Modules:
 
 ```bash
 npm i react-native-nitro-haptic react-native-nitro-modules
-```
-
-or
-
-```bash
+# or
 bun add react-native-nitro-haptic react-native-nitro-modules
-```
-
-or
-
-```bash
+# or
 yarn add react-native-nitro-haptic react-native-nitro-modules
 ```
 
