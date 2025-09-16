@@ -32,5 +32,5 @@ export interface HapticPattern {
 export interface Haptic extends HybridObject<{ ios: 'swift', android: 'kotlin' }> {
   isAvailable(): boolean
   notify(preset: HapticPreset): void
-  play(pattern: HapticPattern): Promise<void>
+  play(pattern: HapticPattern): void
 }

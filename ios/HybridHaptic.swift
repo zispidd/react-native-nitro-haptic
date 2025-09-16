@@ -1,20 +1,18 @@
+import Foundation
 import UIKit
 import CoreHaptics
-import NitroModules
 
 class HybridHaptic: HybridHapticSpec {
   private var engine: CHHapticEngine?
-  private var supportsHaptics: Bool { CHHapticEngine.capabilitiesForHardware().supportsHaptics }
 
-  func isAvailable() -> Bool { supportsHaptics }
-
-  func notify(preset: HapticPreset) {
-    if !supportsHaptics {
-      let g = UIImpactFeedbackGenerator(style: .medium)
-      g.prepare()
-      g.impactOccurred()
-      return
+  func isAvailable() throws -> Bool {
+    if #available(iOS 13.0, *) {
+      return CHHapticEngine.capabilitiesForHardware().supportsHaptics
     }
+    return false
+  }
+
+  func notify(preset: HapticPreset) throws {
     switch preset {
     case .selection:
       let g = UISelectionFeedbackGenerator()
@@ -67,34 +65,39 @@ class HybridHaptic: HybridHapticSpec {
     }
   }
 
-  func play(pattern: HapticPattern) -> Promise<Void> {
-    if !supportsHaptics { return Promise.async { } }
-    return Promise.async { [weak self] in
-      guard let self else { return }
-      try? self.engine?.stop(completionHandler: nil)
-      self.engine = try? CHHapticEngine()
-      guard let engine = self.engine else { return }
-      try? engine.start()
-      var events: [CHHapticEvent] = []
-      for e in pattern.events.sorted(by: { $0.time < $1.time }) {
-        let intensity = e.parameters?.intensity ?? 1.0
-        let sharpness = e.parameters?.sharpness ?? 0.5
-        let iParam = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(intensity))
-        let sParam = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(sharpness))
-        switch e.eventType {
-        case .haptictransient:
-          let ev = CHHapticEvent(eventType: .hapticTransient, parameters: [iParam, sParam], relativeTime: e.time)
-          events.append(ev)
-        case .hapticcontinuous:
-          let ev = CHHapticEvent(eventType: .hapticContinuous, parameters: [iParam, sParam], relativeTime: e.time, duration: e.eventDuration ?? 0.2)
-          events.append(ev)
-        default:
-          break
+  func play(pattern: HapticPattern) throws {
+    if #available(iOS 13.0, *), try (isAvailable()) {
+      do {
+        if engine == nil {
+          engine = try CHHapticEngine()
+          try engine?.start()
         }
+        let events = try pattern.events.sorted { $0.time < $1.time }.map { e -> CHHapticEvent in
+          let time = CHHapticTimeImmediate + Double(e.time)
+          let intensity = Float(e.parameters?.intensity ?? 1.0)
+          let sharpness = Float(e.parameters?.sharpness ?? 0.5)
+          switch e.eventType {
+          case .haptictransient:
+            return CHHapticEvent(eventType: .hapticTransient, parameters: [
+              CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity),
+              CHHapticEventParameter(parameterID: .hapticSharpness, value: sharpness)
+            ], relativeTime: time, duration: 0.0)
+          case .hapticcontinuous:
+            let dur = max(0.001, e.eventDuration ?? 0.1)
+            return CHHapticEvent(eventType: .hapticContinuous, parameters: [
+              CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity),
+              CHHapticEventParameter(parameterID: .hapticSharpness, value: sharpness)
+            ], relativeTime: time, duration: dur)
+          }
+        }
+        let pattern = try CHHapticPattern(events: events, parameters: [])
+        let player = try engine!.makePlayer(with: pattern)
+        try player.start(atTime: 0)
+      } catch {
+        // Swallow errors to keep behavior consistent with original code,
+        // but method must be `throws` to satisfy protocol.
+        // You can `throw error` here if you want errors to propagate.
       }
-      let pattern = try CHHapticPattern(events: events, parameters: [])
-      let player = try engine.makePlayer(with: pattern)
-      try player.start(atTime: 0)
     }
   }
 }

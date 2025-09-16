@@ -39,7 +39,7 @@ import { notify, play } from 'react-native-nitro-haptic'
 
 notify('selection')
 
-await play({
+play({
   events: [
     { eventType: 'hapticTransient', time: 0, parameters: { intensity: 1, sharpness: 0.6 } },
     { eventType: 'hapticTransient', time: 0.2, parameters: { intensity: 0.8, sharpness: 0.3 } }
@@ -92,7 +92,7 @@ Heartbeat
 ```ts
 import { play } from 'react-native-nitro-haptic'
 
-await play({
+play({
   events: [
     { eventType: 'hapticTransient', time: 0, parameters: { intensity: 0.8, sharpness: 0.2 } },
     { eventType: 'hapticTransient', time: 0.2, parameters: { intensity: 1, sharpness: 0.3 } }
@@ -103,7 +103,7 @@ await play({
 Crescendo
 
 ```ts
-await play({
+play({
   events: Array.from({ length: 8 }).map((_, i) => ({
     eventType: 'hapticTransient' as const,
     time: i * 0.06,
