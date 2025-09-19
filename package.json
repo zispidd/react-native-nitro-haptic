@@ -1,6 +1,6 @@
 {
   "name": "react-native-nitro-haptic",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "React Native nitro feedback with customization",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
