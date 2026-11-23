@@ -57,6 +57,16 @@ if (NitroHaptic.isAvailable()) {
 }
 ```
 
+### Worklets
+
+`notify` and `play` are worklets, so they can be called straight from the UI thread (Reanimated / Gesture Handler callbacks) without hopping to the JS thread. This needs `react-native-worklets` in the app; without it they are plain functions.
+
+```ts
+const pan = Gesture.Pan().onUpdate(event => {
+  if (crossedStep(event)) notify('selection')
+})
+```
+
 ### Presets
 
 Available `HapticPreset` values

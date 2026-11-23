@@ -5,5 +5,12 @@ export { RNHFPresetToNitro } from './presets'
 
 export const NitroHaptic = NitroModules.createHybridObject('Haptic') as Haptic
 
-export const notify = (preset: HapticPreset) => NitroHaptic.notify(preset)
-export const play = (pattern: HapticPattern) => NitroHaptic.play(pattern)
+export const notify = (preset: HapticPreset) => {
+  'worklet'
+  NitroHaptic.notify(preset)
+}
+
+export const play = (pattern: HapticPattern) => {
+  'worklet'
+  NitroHaptic.play(pattern)
+}
