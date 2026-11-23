@@ -7,13 +7,15 @@ final class HybridHaptic: HybridHapticSpec {
   private enum EngineState { case idle, starting, running, failed }
   private var engineState: EngineState = .idle
   private var pendingBlocks: [() -> Void] = []
+  // CHHapticEngine() and start() block their thread for long enough to drop frames on main
+  private let engineQueue = DispatchQueue(label: "com.margelo.nitro.haptic.engine", qos: .userInitiated)
 
   private func onMain(_ block: @escaping () -> Void) {
     if Thread.isMainThread { block() } else { DispatchQueue.main.async { block() } }
   }
 
   private func ensureEngineReadyThen(_ block: @escaping () -> Void) {
-    onMain { [weak self] in
+    engineQueue.async { [weak self] in
       guard let self = self else { return }
       guard #available(iOS 13.0, *),
             CHHapticEngine.capabilitiesForHardware().supportsHaptics else {
@@ -38,10 +40,10 @@ final class HybridHaptic: HybridHapticSpec {
             e.isAutoShutdownEnabled = true
 
             e.stoppedHandler = { [weak self] _ in
-              self?.engineState = .idle
+              self?.engineQueue.async { self?.engineState = .idle }
             }
             e.resetHandler = { [weak self] in
-              self?.engineState = .idle
+              self?.engineQueue.async { self?.engineState = .idle }
             }
 
             self.engine = e
